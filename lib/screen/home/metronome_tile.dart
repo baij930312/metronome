@@ -62,9 +62,7 @@ class _MetronmonTileState extends State<MetronmonTile> {
             Future.delayed(Duration(milliseconds: 300),
                 () => homeBloc.modifyHandel(model));
           }
-          setState(() {
-            this.isExpand = isExpand;
-          });
+          this.isExpand = isExpand;
         },
         leading: StreamBuilder<PlayState>(
           stream: homeBloc.playStateStream,

@@ -109,19 +109,43 @@ class HomeBloc extends BlocBase {
   Stream<List<MetronomeModel>> get resource => _metronomeResource.stream;
   List<MetronomeModel> get metronomes => _metronomeResource.value;
 
+  int indexWithInterval(int begain, int end, int interval, int target) {
+    assert(begain <= end);
+    assert(interval > 0);
+    int res = 0;
+    int greater = 0;
+    for (var i = begain; i < end; i = i + interval) {
+      res++;
+      greater = i + interval;
+      if ((i <= (target)) && (greater > (target))) {
+        return res;
+      }
+    }
+    return -1;
+  }
+
   HomeBloc() {
     playStream.pipe(_playOutPutController);
     playOutPutStream.listen(
       (int i) {
-        _playStateController.sink.add(PlayState(
-          index: _playController.value.index,
-          playing: true,
-          totelCount: _playController.value.counts,
-        ));
         MetronomeModel model = _playController.value;
+        int beatIndex = indexWithInterval(
+          0,
+          model.beatsOfBar * model.counts,
+          model.beatsOfBar,
+          i,
+        );
+        _playStateController.sink.add(PlayState(
+          index: model.index,
+          playing: true,
+          totelCountOfBar: model.counts,
+          currentBarIndex: beatIndex,
+          totelBeatsOfBar: model.beatsOfBar,
+          currentBeatIndex: i % model.beatsOfBar,
+        ));
         if ((model.counts * model.beatsOfBar - 1) == i) {
           int currentIndex = _metronomeResource.value.indexWhere((item) {
-            return item.index == _playController.value.index;
+            return item.index == model.index;
           });
           //当前播放完毕  播放下一条
           if (_metronomeResource.value.length > (currentIndex + 1)) {
@@ -130,8 +154,10 @@ class HomeBloc extends BlocBase {
             _playStateController.sink.add(PlayState(
               index: -1,
               playing: false,
-              totelCount: 0,
-              currentCount: 0,
+              totelCountOfBar: 1,
+              currentBarIndex: 1,
+              totelBeatsOfBar: 4,
+              currentBeatIndex: -1,
             ));
           }
         }

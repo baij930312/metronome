@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:metronome/bloc/bloc_provider.dart';
 import 'package:metronome/screen/home/metronome_tile.dart';
 import 'package:metronome/screen/home/model/metronome_model.dart';
+import 'package:metronome/screen/home/model/play_state.dart';
 import 'package:metronome/screen/home/model/reorder_modeld.dart';
 import 'package:metronome/widget/fade_appbar.dart';
 import 'package:metronome/widget/backdrop_panel.dart';
@@ -75,71 +76,77 @@ class HomeScreenState extends State<HomeScreen>
       _controller.fling(velocity: _controller.value < 0.5 ? -2.0 : 2.0);
   }
 
-  Widget _buildBackDropTitle(bloc) {
-    return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.only(left: 3.0),
-                child: Material(
-                  child: Container(
-                    height: 10.0,
-                    width: 10.0,
-                    margin: EdgeInsets.symmetric(vertical: 1.0),
-                    padding: EdgeInsets.symmetric(horizontal: 5.0),
-                  ),
-                  color: Colors.red,
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(left: 3.0),
-                child: Material(
-                  child: Container(
-                    height: 10.0,
-                    width: 10.0,
-                  ),
-                  color: Colors.red,
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(left: 3.0),
-                child: Material(
-                  child: Container(
-                    height: 10.0,
-                    width: 10.0,
-                  ),
-                  color: Colors.red,
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(left: 3.0),
-                child: Material(
-                  child: Container(
-                    height: 10.0,
-                    width: 10.0,
-                  ),
-                  color: Colors.red,
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                ),
-              ),
-            ],
+  Widget _buildDot(bool special, bool hightlight) {
+    if (special) {
+      return Container(
+        margin: EdgeInsets.only(left: 3.0),
+        child: Material(
+          child: Container(
+            height: 10.0,
+            width: 10.0,
+            margin: EdgeInsets.symmetric(vertical: 1.0),
+            padding: EdgeInsets.symmetric(horizontal: 5.0),
           ),
-          Container(
-            child: Text('-/-'),
-            margin: EdgeInsets.only(
-                right: (_controller.status == AnimationStatus.completed ||
-                        _controller.status == AnimationStatus.forward)
-                    ? 0.0
-                    : 70.0),
-          )
-        ],
-      ),
+          color: hightlight ? Colors.orange : Colors.red,
+          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+        ),
+      );
+    } else {
+      return Container(
+        margin: EdgeInsets.only(left: 3.0),
+        child: Material(
+          child: Container(
+            height: 10.0,
+            width: 10.0,
+          ),
+          color: hightlight ? Colors.orange : Colors.red,
+          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+        ),
+      );
+    }
+  }
+
+  Widget _buildBackDropTitle(HomeBloc bloc) {
+    return StreamBuilder<PlayState>(
+      stream: bloc.playStateStream,
+      builder: (BuildContext context, AsyncSnapshot<PlayState> snapshot) {
+        if (snapshot.hasData) {
+          PlayState stateModel = snapshot.data;
+          List<Widget> widgets = [];
+          for (var i = 0; i < stateModel.totelBeatsOfBar; i++) {
+            widgets.add(_buildDot(
+              i == stateModel.totelBeatsOfBar - 1,
+              i == stateModel.currentBeatIndex,
+            ));
+          }
+          return Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Row(
+                  children: widgets,
+                ),
+                Container(
+                  child: Text(
+                      '${stateModel.currentBarIndex}/${stateModel.totelCountOfBar}'),
+                  margin: EdgeInsets.only(
+                      right: (_controller.status == AnimationStatus.completed ||
+                              _controller.status == AnimationStatus.forward)
+                          ? 0.0
+                          : 70.0),
+                )
+              ],
+            ),
+          );
+        } else {
+          return Text(
+            '带一波好节奏~',
+            style: TextStyle(
+              color: Colors.grey,
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -213,6 +220,16 @@ class HomeScreenState extends State<HomeScreen>
                 builder: (BuildContext context,
                     AsyncSnapshot<List<MetronomeModel>> snapshot) {
                   if (snapshot.hasData) {
+                    if (snapshot.data.length == 0) {
+                      return Center(
+                        child: Container(
+                          child: Text(
+                            '点击右下方按钮添加节奏~',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                      );
+                    }
                     final widgets = snapshot.data.map<Widget>((item) {
                       return DragDeleteTile<MetronomeModel>(
                         key: Key(item.index.toString()),
@@ -235,7 +252,7 @@ class HomeScreenState extends State<HomeScreen>
                     return Center(
                       child: Container(
                         child: Text(
-                          '空空如也~',
+                          '点击右下方按钮添加节奏~',
                           style: TextStyle(color: Colors.grey),
                         ),
                       ),
