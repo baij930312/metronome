@@ -21,16 +21,23 @@ class HomeBloc extends BlocBase {
 
   Stream<int> get playStream =>
       _playController.stream.switchMap((MetronomeModel model) {
-        List<int> elements = [];
-
-        for (var i = 1; i < model.counts * model.beatsOfBar; i++) {
-          elements.add(i);
+        if (model.isBegain) {
+          List<int> elements = [];
+          for (var i = 1; i < model.counts * model.beatsOfBar; i++) {
+            elements.add(i);
+          }
+          return Observable(Stream.fromIterable(elements))
+              .interval(
+                  Duration(milliseconds: (60000 ~/ (model.beatsOfMinute))))
+              .startWith(0);
+        } else {
+          List<int> elements = [];
+          for (var i = 0; i < model.counts * model.beatsOfBar; i++) {
+            elements.add(i);
+          }
+          return Observable(Stream.fromIterable(elements)).interval(
+              Duration(milliseconds: (60000 ~/ (model.beatsOfMinute))));
         }
-        print(elements);
-        print((60000 ~/ (model.beatsOfMinute)));
-        return Observable(Stream.fromIterable(elements))
-            .interval(Duration(milliseconds: (60000 ~/ (model.beatsOfMinute))))
-            .startWith(0);
       });
   Stream<PlayState> get playStateStream => _playStateController.stream;
   Stream<int> get playOutPutStream => _playOutPutController.stream;

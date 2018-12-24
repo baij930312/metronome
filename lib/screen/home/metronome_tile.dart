@@ -41,7 +41,9 @@ class _MetronmonTileState extends State<MetronmonTile> {
           highlightColor: Color.fromRGBO(0, 0, 0, 0),
           onTap: () {
             if (!isExpand) {
-              homeBloc.playHandel(model);
+              MetronomeModel playModel = MetronomeModel.from(model);
+              playModel.isBegain = true;
+              homeBloc.playHandel(playModel);
             }
           },
           child: _crossFade(
