@@ -7,7 +7,7 @@ import 'package:metronome/player/player.dart';
 
 class HomeBloc extends BlocBase {
   final Player player = Player();
-
+  
   BehaviorSubject<PlayState> _playStateController =
       BehaviorSubject<PlayState>();
   BehaviorSubject<MetronomeModel> _playController =

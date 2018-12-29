@@ -1,3 +1,7 @@
+import 'package:json_annotation/json_annotation.dart';
+part 'metronome_model.g.dart';
+
+@JsonSerializable()
 class MetronomeModel implements Comparable<MetronomeModel> {
   int index;
   int counts = 10;
@@ -10,6 +14,9 @@ class MetronomeModel implements Comparable<MetronomeModel> {
     this.beatsOfBar,
     this.beatsOfMinute,
   });
+
+  factory MetronomeModel.fromJson(Map<String, dynamic> json) =>
+      _$MetronomeModelFromJson(json);
 
   MetronomeModel.from(MetronomeModel item)
       : index = item.index,

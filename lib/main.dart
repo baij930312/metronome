@@ -1,4 +1,4 @@
-import 'package:metronome/app.dart';
+import 'package:metronome/app/app.dart';
 import 'package:metronome/bloc/bloc_provider.dart';
 import 'package:flutter/material.dart';
 

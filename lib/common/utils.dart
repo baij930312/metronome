@@ -8,8 +8,8 @@ import 'package:rxdart/rxdart.dart';
 
 class Utils {
   //应用名称
-  static String appName = '稳的厉害';
-  static String userCacheKey = 'LOCAL_CACHE_USER';
+  static String appName = '节拍器';
+  static String cacheKey = 'LOCAL_CACHE';
 
   // 返回当前时间戳
   static int currentTimeMillis() {
