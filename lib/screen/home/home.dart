@@ -181,12 +181,17 @@ class HomeScreenState extends State<HomeScreen>
     }
 
     final ThemeData theme = Theme.of(context);
-    final List<Widget> backdropItems = [Map()].map<Widget>((category) {
+    final List<Widget> backdropItems = [{}, {}, {}].map<Widget>((category) {
       final bool selected = false;
       return Material(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(4.0)),
+        ),
+        color: selected ? Colors.white.withOpacity(0.25) : Colors.transparent,
         child: ListTile(
-          // title: Text(category.title),
+          title: Text('设置项'),
           selected: selected,
+          onTap: () {},
         ),
       );
     }).toList();
@@ -224,7 +229,7 @@ class HomeScreenState extends State<HomeScreen>
                       return Center(
                         child: Container(
                           child: Text(
-                            '点击右下方按钮添加节奏~',
+                            '点击右下方按钮添���节奏~',
                             style: TextStyle(color: Colors.grey),
                           ),
                         ),

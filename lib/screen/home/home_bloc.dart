@@ -110,6 +110,21 @@ class HomeBloc extends BlocBase {
     };
   }
 
+  //替换整个节奏列表
+  Function(List<MetronomeModel>) get replaceHandel =>
+      _replaceMetronomes.sink.add;
+  PublishSubject<List<MetronomeModel>> _replaceMetronomes =
+      PublishSubject<List<MetronomeModel>>();
+  Stream<Function> get _replaceStream =>
+      _replaceMetronomes.stream.map(_replaceReducer);
+
+  Function _replaceReducer(List<MetronomeModel> metronomes) {
+    return (List<MetronomeModel> datas) {
+      datas = metronomes;
+      return datas;
+    };
+  }
+
   //数据出口
   BehaviorSubject<List<MetronomeModel>> _metronomeResource =
       BehaviorSubject<List<MetronomeModel>>();
@@ -172,7 +187,13 @@ class HomeBloc extends BlocBase {
       },
     );
 
-    Observable.merge([_addStream, _modifyStream, _deleteStream, _reOrderStream])
+    Observable.merge([
+      _addStream,
+      _modifyStream,
+      _deleteStream,
+      _reOrderStream,
+      _replaceStream
+    ])
         .transform(ScanStreamTransformer<Function, List<MetronomeModel>>((
       List<MetronomeModel> acc,
       Function curr,
@@ -193,5 +214,6 @@ class HomeBloc extends BlocBase {
     _playStateController.close();
     _deleteMetronome.close();
     _reOrderMetronome.close();
+    _replaceMetronomes.close();
   }
 }
