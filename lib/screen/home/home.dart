@@ -11,6 +11,13 @@ import 'dart:math' as math;
 
 import 'package:metronome/widget/drag_delete_tile.dart';
 
+class SettingItem {
+  String title;
+  Function onDone;
+  Widget child;
+  SettingItem({this.title, this.onDone, this.child});
+}
+
 class HomeScreen extends StatefulWidget {
   @override
   HomeScreenState createState() {
@@ -180,8 +187,22 @@ class HomeScreenState extends State<HomeScreen>
       bloc.deleteHandel(item);
     }
 
+    void settingDelay(int delay) {}
+
+    AppBloc appBloc = BlocProvider.of<AppBloc>(context);
     final ThemeData theme = Theme.of(context);
-    final List<Widget> backdropItems = [{}, {}, {}].map<Widget>((category) {
+    final List<Widget> backdropItems = [
+      SettingItem(
+          title: '循环',
+          child: Switch(
+            value: appBloc.cacheModel.isLoopPlay,
+            onChanged: appBloc.loopSettingHandel,
+          )),
+      SettingItem(
+        title: '起始延时',
+        child: Text('asdasd'),
+      ),
+    ].map<Widget>((item) {
       final bool selected = false;
       return Material(
         shape: const RoundedRectangleBorder(
@@ -189,9 +210,8 @@ class HomeScreenState extends State<HomeScreen>
         ),
         color: selected ? Colors.white.withOpacity(0.25) : Colors.transparent,
         child: ListTile(
-          title: Text('设置项'),
-          selected: selected,
-          onTap: () {},
+          title: Text(item.title),
+          trailing: item.child,
         ),
       );
     }).toList();

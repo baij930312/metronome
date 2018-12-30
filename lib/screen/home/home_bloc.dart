@@ -204,14 +204,18 @@ class HomeBloc extends BlocBase {
           if (_metronomeResource.value.length > (currentIndex + 1)) {
             playHandel(_metronomeResource.value[currentIndex + 1]);
           } else {
-            playStateHandel(PlayState(
-              index: -1,
-              playing: false,
-              totelCountOfBar: 1,
-              currentBarIndex: 1,
-              totelBeatsOfBar: 4,
-              currentBeatIndex: -1,
-            ));
+            if (appBloc.cacheModel.isLoopPlay) {
+              playHandel(_metronomeResource.value.first);
+            } else {
+              playStateHandel(PlayState(
+                index: -1,
+                playing: false,
+                totelCountOfBar: 1,
+                currentBarIndex: 1,
+                totelBeatsOfBar: 4,
+                currentBeatIndex: -1,
+              ));
+            }
           }
         }
         player.playLocal();

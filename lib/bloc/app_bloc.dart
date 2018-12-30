@@ -19,6 +19,31 @@ class AppBloc extends BlocBase {
     };
   }
 
+  //设置是否循环
+  Function(bool) get loopSettingHandel => _loopSettingController.sink.add;
+  PublishSubject<bool> _loopSettingController = PublishSubject<bool>();
+  Stream<Function> get _loopSettingStream =>
+      _loopSettingController.stream.map(_loopSettingReducer);
+  Function _loopSettingReducer(bool flog) {
+    return (LocalCacheModel cache) {
+      //向本地缓存中添加
+      cache.isLoopPlay = flog;
+      return cache;
+    };
+  }
+
+  //设置延迟时间
+  Function(int) get delaySettingHandel => _delaySettingController.sink.add;
+  PublishSubject<int> _delaySettingController = PublishSubject<int>();
+  Stream<Function> get _delaySettingStream =>
+      _delaySettingController.stream.map(_delaySettingReducer);
+  Function _delaySettingReducer(int delay) {
+    return (LocalCacheModel cache) {
+      cache.delaySecond = delay;
+      return cache;
+    };
+  }
+
   //添加
   Function(LocalStoreMetronomeModel) get addHandel => _addMetronome.sink.add;
   PublishSubject<LocalStoreMetronomeModel> _addMetronome =
@@ -64,7 +89,13 @@ class AppBloc extends BlocBase {
   }
 
   AppBloc() {
-    Observable.merge([_addStream, _initStream, _deleteStream])
+    Observable.merge([
+      _addStream,
+      _initStream,
+      _deleteStream,
+      _loopSettingStream,
+      _delaySettingStream
+    ])
         .transform(ScanStreamTransformer<Function, LocalCacheModel>((
           LocalCacheModel acc,
           Function curr,
@@ -87,6 +118,8 @@ class AppBloc extends BlocBase {
     _addMetronome.close();
     initController.close();
     _deleteMetronome.close();
+    _loopSettingController.close();
+    _delaySettingController.close();
   }
 }
 
