@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:metronome/app/model/local_cache_model.dart';
+import 'package:metronome/bloc/bloc_provider.dart';
+import 'package:metronome/screen/home/model/metronome_model.dart';
+import 'package:metronome/widget/drag_delete_tile.dart';
 
 enum AlertState {
   cancel,
@@ -11,6 +15,7 @@ class BottomToolBar extends StatelessWidget {
   final Color color;
   final FloatingActionButtonLocation fabLocation;
   final NotchedShape shape;
+  static String name;
 
   static final List<FloatingActionButtonLocation> kCenterLocations =
       <FloatingActionButtonLocation>[
@@ -24,20 +29,26 @@ class BottomToolBar extends StatelessWidget {
       builder: (BuildContext context) => child,
     ).then<void>((T value) {
       if (value == AlertState.confirm) {
-        print('点击确认 ');
+        AppBloc appBloc = BlocProvider.of<AppBloc>(context);
+        HomeBloc homeBloc = BlocProvider.of<HomeBloc>(context);
+        appBloc.addHandel(LocalStoreMetronomeModel(
+            creatTimeStamp: Utils.currentTimeMillis(),
+            metronomes: homeBloc.metronomes,
+            name: name));
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final HomeBloc bloc = BlocProvider.of<HomeBloc>(context);
     final List<Widget> rowContents = <Widget>[
       IconButton(
-        icon: const Icon(Icons.menu, semanticLabel: '不着急'),
+        icon: const Icon(Icons.menu, semanticLabel: '节奏夹'),
         onPressed: () {
           showModalBottomSheet<void>(
             context: context,
-            builder: (BuildContext context) => const LocalStoreDrawer(),
+            builder: (BuildContext context) => LocalStoreDrawer(bloc),
           );
         },
       ),
@@ -52,7 +63,7 @@ class BottomToolBar extends StatelessWidget {
       IconButton(
         icon: const Icon(
           Icons.save,
-          semanticLabel: '不着急',
+          semanticLabel: '保存当前节奏单',
         ),
         onPressed: () {
           showSaveDialog<AlertState>(
@@ -64,6 +75,9 @@ class BottomToolBar extends StatelessWidget {
                       Text('请为这段节奏起个名字吧~'),
                       TextField(
                         autofocus: true,
+                        onChanged: (text) {
+                          name = text;
+                        },
                       ),
                     ],
                   ),
@@ -84,12 +98,14 @@ class BottomToolBar extends StatelessWidget {
       IconButton(
         icon: Icon(
           Icons.refresh,
-          semanticLabel: '不着急',
+          semanticLabel: '从头播放',
         ),
         onPressed: () {
-          Scaffold.of(context).showSnackBar(
-            const SnackBar(content: Text('不着急')),
-          );
+          if (!(bloc.metronomes.isEmpty)) {
+            var model = MetronomeModel.from(bloc.metronomes.first)
+              ..isBegain = true;
+            bloc.playHandel(model);
+          }
         },
       ),
     ]);
@@ -103,47 +119,54 @@ class BottomToolBar extends StatelessWidget {
 }
 
 class LocalStoreDrawer extends StatelessWidget {
-  const LocalStoreDrawer();
+  final HomeBloc bloc;
+  const LocalStoreDrawer(this.bloc);
+  _handleDelete(item,AppBloc appBloc) {
+    appBloc.deleteHandel(item);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        children: const <Widget>[
-          ListTile(
-            leading: Icon(Icons.search),
-            title: Text('Search'),
-          ),
-          ListTile(
-            leading: Icon(Icons.threed_rotation),
-            title: Text('3D'),
-          ),
-          ListTile(
-            leading: Icon(Icons.search),
-            title: Text('Search'),
-          ),
-          ListTile(
-            leading: Icon(Icons.threed_rotation),
-            title: Text('3D'),
-          ),
-          ListTile(
-            leading: Icon(Icons.search),
-            title: Text('Search'),
-          ),
-          ListTile(
-            leading: Icon(Icons.threed_rotation),
-            title: Text('3D'),
-          ),
-          ListTile(
-            leading: Icon(Icons.search),
-            title: Text('Search'),
-          ),
-          ListTile(
-            leading: Icon(Icons.threed_rotation),
-            title: Text('3D'),
-          ),
-        ],
-      ),
+    AppBloc appBloc = BlocProvider.of<AppBloc>(context);
+    return StreamBuilder(
+      stream: appBloc.resource,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        LocalCacheModel cache = snapshot.data;
+        if (!snapshot.hasData) {
+          return Container(
+            height: Utils.getScreenHeight(context) / 2.0,
+            child: Text('没有保存记录'),
+          );
+        }
+        if (cache.metronomesStore.length > 0) {
+          List widgets = cache.metronomesStore.map<Widget>((item) {
+            return DragDeleteTile<LocalStoreMetronomeModel>(
+              key: Key(item.creatTimeStamp.toString()),
+              item: item,
+              onDelete: (item) => _handleDelete(item, appBloc),
+              dismissDirection: DismissDirection.endToStart,
+              child: ListTile(
+                title: Text(item.name),
+                subtitle:
+                    Text(Utils.dateformatWithYYYYMMDD(item.creatTimeStamp)),
+                onTap: () {
+                  bloc.stopHandel(0);
+                  bloc.replaceHandel(item.metronomes);
+                  Navigator.of(context).pop();
+                },
+              ),
+            );
+          }).toList();
+          return ListView(
+            children: widgets,
+          );
+        } else {
+          return Container(
+            height: Utils.getScreenHeight(context) / 2.0,
+            child: Text('没有保存记录'),
+          );
+        }
+      },
     );
   }
 }

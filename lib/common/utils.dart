@@ -16,6 +16,18 @@ class Utils {
     return new DateTime.now().millisecondsSinceEpoch;
   }
 
+  // 返回当前时间字符串 年月日 YYYY年MM月DD日
+  static String dateformatWithYYYYMMDD(int timeStamp) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(timeStamp);
+    return '${date.year}年${date.month}月${date.day}日';
+  }
+
+  // 返回当前时间字符串 时分秒 hh:mm:ss
+  static String dateformatWithHHMMSS(int timeStamp) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(timeStamp);
+    return '${date.hour}:${date.minute}:${date.second}';
+  }
+
   // 复制到剪粘板
   static copyToClipboard(final String text) {
     if (text == null) return;

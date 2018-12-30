@@ -7,20 +7,20 @@ import 'package:metronome/player/player.dart';
 
 class HomeBloc extends BlocBase {
   final Player player = Player();
-  
-  BehaviorSubject<PlayState> _playStateController =
-      BehaviorSubject<PlayState>();
+  //-----------播放bloc---------------
+//状态更新
+  PublishSubject<PlayState> _playStateController = PublishSubject<PlayState>();
+  Function(PlayState) get playStateHandel => _playStateController.sink.add;
+  Stream<PlayState> get playStateStream => _playStateController.stream;
+//播放
   BehaviorSubject<MetronomeModel> _playController =
       BehaviorSubject<MetronomeModel>();
-  BehaviorSubject<int> _playOutPutController = BehaviorSubject<int>();
-  //播放
   Function(MetronomeModel) get playHandel => _playController.sink.add;
 
-  MetronomeModel get currentMetronime => _playController.value;
-  int get playIndex => _playOutPutController.value;
-
-  Stream<int> get playStream =>
-      _playController.stream.switchMap((MetronomeModel model) {
+  Stream<int> get playStream => _playController.stream
+          .where((model) => model != null)
+          .switchMap((MetronomeModel model) {
+        //手动点击
         if (model.isBegain) {
           List<int> elements = [];
           for (var i = 1; i < model.counts * model.beatsOfBar; i++) {
@@ -29,19 +29,37 @@ class HomeBloc extends BlocBase {
           return Observable(Stream.fromIterable(elements))
               .interval(
                   Duration(milliseconds: (60000 ~/ (model.beatsOfMinute))))
-              .startWith(0);
+              .startWith(0)
+              .takeUntil(stopStream);
         } else {
+          //自动播放
           List<int> elements = [];
           for (var i = 0; i < model.counts * model.beatsOfBar; i++) {
             elements.add(i);
           }
-          return Observable(Stream.fromIterable(elements)).interval(
-              Duration(milliseconds: (60000 ~/ (model.beatsOfMinute))));
+          return Observable(Stream.fromIterable(elements))
+              .interval(
+                  Duration(milliseconds: (60000 ~/ (model.beatsOfMinute))))
+              .takeUntil(stopStream);
+          ;
         }
       });
-  Stream<PlayState> get playStateStream => _playStateController.stream;
+
+  //停止
+  PublishSubject<int> _stopController = PublishSubject<int>();
+  Function(int) get stopHandel => _stopController.sink.add;
+  Stream<int> get stopStream => _stopController.stream;
+
+//出口
+  BehaviorSubject<int> _playOutPutController = BehaviorSubject<int>();
   Stream<int> get playOutPutStream => _playOutPutController.stream;
 
+  //当前正在播放的数据
+  MetronomeModel get currentMetronime => _playController.value;
+  //正在播放的索引
+  int get playIndex => _playOutPutController.value;
+
+// --------------节奏单 bloc------------------
   //添加
   Function(MetronomeModel) get addHandel => _addMetronome.sink.add;
   PublishSubject<MetronomeModel> _addMetronome =
@@ -120,7 +138,7 @@ class HomeBloc extends BlocBase {
 
   Function _replaceReducer(List<MetronomeModel> metronomes) {
     return (List<MetronomeModel> datas) {
-      datas = metronomes;
+      datas = List.from(metronomes);
       return datas;
     };
   }
@@ -147,7 +165,20 @@ class HomeBloc extends BlocBase {
   }
 
   HomeBloc() {
+    //-----------播放bloc---------------
+    stopStream.listen((flog) {
+      playStateHandel(PlayState(
+        index: -1,
+        playing: false,
+        totelCountOfBar: 1,
+        currentBarIndex: 1,
+        totelBeatsOfBar: 4,
+        currentBeatIndex: -1,
+      ));
+    });
+
     playStream.pipe(_playOutPutController);
+
     playOutPutStream.listen(
       (int i) {
         MetronomeModel model = _playController.value;
@@ -157,7 +188,7 @@ class HomeBloc extends BlocBase {
           model.beatsOfBar,
           i,
         );
-        _playStateController.sink.add(PlayState(
+        playStateHandel(PlayState(
           index: model.index,
           playing: true,
           totelCountOfBar: model.counts,
@@ -173,7 +204,7 @@ class HomeBloc extends BlocBase {
           if (_metronomeResource.value.length > (currentIndex + 1)) {
             playHandel(_metronomeResource.value[currentIndex + 1]);
           } else {
-            _playStateController.sink.add(PlayState(
+            playStateHandel(PlayState(
               index: -1,
               playing: false,
               totelCountOfBar: 1,
@@ -186,7 +217,7 @@ class HomeBloc extends BlocBase {
         player.playLocal();
       },
     );
-
+//----------节奏单----------
     Observable.merge([
       _addStream,
       _modifyStream,
@@ -215,5 +246,6 @@ class HomeBloc extends BlocBase {
     _deleteMetronome.close();
     _reOrderMetronome.close();
     _replaceMetronomes.close();
+    _stopController.close();
   }
 }
