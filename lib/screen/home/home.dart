@@ -187,51 +187,105 @@ class HomeScreenState extends State<HomeScreen>
       bloc.deleteHandel(item);
     }
 
-    void settingDelay(int delay) {}
-
     AppBloc appBloc = BlocProvider.of<AppBloc>(context);
     final ThemeData theme = Theme.of(context);
-    final List<Widget> backdropItems = [
-      SettingItem(
-          title: '循环',
-          child: Switch(
-            value: appBloc.cacheModel.isLoopPlay,
-            onChanged: appBloc.loopSettingHandel,
-          )),
-      SettingItem(
-        title: '起始延时',
-        child: Text('asdasd'),
-      ),
-    ].map<Widget>((item) {
-      final bool selected = false;
-      return Material(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(4.0)),
-        ),
-        color: selected ? Colors.white.withOpacity(0.25) : Colors.transparent,
-        child: ListTile(
-          title: Text(item.title),
-          trailing: item.child,
-        ),
-      );
-    }).toList();
     HomeBloc bloc = BlocProvider.of<HomeBloc>(context);
     return Container(
       key: _backdropKey,
       color: theme.primaryColor,
       child: Stack(
         children: <Widget>[
-          ListTileTheme(
-            iconColor: theme.primaryIconTheme.color,
-            textColor: theme.primaryTextTheme.title.color.withOpacity(0.6),
-            selectedColor: theme.primaryTextTheme.title.color,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: backdropItems,
-              ),
-            ),
+          StreamBuilder(
+            stream: appBloc.resource,
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (!snapshot.hasData) {
+                return Container();
+              }
+              final List<Widget> backdropItems = [
+                SettingItem(
+                    title: '循环',
+                    child: Switch(
+                      value: appBloc.cacheModel.isLoopPlay,
+                      onChanged: appBloc.loopSettingHandel,
+                    )),
+                SettingItem(
+                  title: '起始延时',
+                  child: PopupMenuButton<int>(
+                    onSelected: appBloc.delaySettingHandel,
+                    itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
+                          PopupMenuItem<int>(
+                              value: 0,
+                              child: Text('0秒',
+                                  style: TextStyle(
+                                    color: (appBloc.cacheModel.delaySecond == 0)
+                                        ? Colors.red
+                                        : Colors.black,
+                                  ))),
+                          PopupMenuItem<int>(
+                              value: 3,
+                              child: Text('3秒',
+                                  style: TextStyle(
+                                    color: (appBloc.cacheModel.delaySecond == 3)
+                                        ? Colors.red
+                                        : Colors.black,
+                                  ))),
+                          PopupMenuItem<int>(
+                              value: 6,
+                              child: Text('6秒',
+                                  style: TextStyle(
+                                    color: (appBloc.cacheModel.delaySecond == 6)
+                                        ? Colors.red
+                                        : Colors.black,
+                                  ))),
+                          PopupMenuItem<int>(
+                              value: 10,
+                              child: Text('10秒',
+                                  style: TextStyle(
+                                    color:
+                                        (appBloc.cacheModel.delaySecond == 10)
+                                            ? Colors.red
+                                            : Colors.black,
+                                  ))),
+                          PopupMenuItem<int>(
+                              value: 15,
+                              child: Text('15秒',
+                                  style: TextStyle(
+                                    color:
+                                        (appBloc.cacheModel.delaySecond == 15)
+                                            ? Colors.red
+                                            : Colors.black,
+                                  ))),
+                        ],
+                  ),
+                ),
+              ].map<Widget>((item) {
+                final bool selected = false;
+                return Material(
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                  ),
+                  color: selected
+                      ? Colors.white.withOpacity(0.25)
+                      : Colors.transparent,
+                  child: ListTile(
+                    title: Text(item.title),
+                    trailing: item.child,
+                  ),
+                );
+              }).toList();
+              return ListTileTheme(
+                iconColor: theme.primaryIconTheme.color,
+                textColor: theme.primaryTextTheme.title.color.withOpacity(0.6),
+                selectedColor: theme.primaryTextTheme.title.color,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: backdropItems,
+                  ),
+                ),
+              );
+            },
           ),
           PositionedTransition(
             rect: panelAnimation,

@@ -12,8 +12,14 @@ LocalCacheModel _$LocalCacheModelFromJson(Map<String, dynamic> json) {
         ?.map((e) => e == null
             ? null
             : LocalStoreMetronomeModel.fromJson(e as Map<String, dynamic>))
-        ?.toList();
+        ?.toList()
+    ..isLoopPlay = json['isLoopPlay'] as bool
+    ..delaySecond = json['delaySecond'] as int;
 }
 
 Map<String, dynamic> _$LocalCacheModelToJson(LocalCacheModel instance) =>
-    <String, dynamic>{'metronomesStore': instance.metronomesStore};
+    <String, dynamic>{
+      'metronomesStore': instance.metronomesStore,
+      'isLoopPlay': instance.isLoopPlay,
+      'delaySecond': instance.delaySecond
+    };

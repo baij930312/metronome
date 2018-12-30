@@ -76,14 +76,16 @@ class AppBloc extends BlocBase {
 
 //数据出口
   BehaviorSubject<LocalCacheModel> _cacheResource =
-      BehaviorSubject<LocalCacheModel>();
+      BehaviorSubject<LocalCacheModel>(seedValue: LocalCacheModel());
   Stream<LocalCacheModel> get resource => _cacheResource.stream;
   LocalCacheModel get cacheModel => _cacheResource.value;
 
   Future<LocalCacheModel> initCache() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String rowJson = prefs.getString(Utils.cacheKey);
-    print(rowJson);
+    if (rowJson == null) {
+      return LocalCacheModel();
+    }
     Map jsonMap = json.decode(rowJson);
     return LocalCacheModel.fromJson(jsonMap);
   }
@@ -108,6 +110,8 @@ class AppBloc extends BlocBase {
     _cacheResource.listen((LocalCacheModel cache) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString(Utils.cacheKey, json.encode(cache.toJson()));
+    }, onError: (err) {
+      print(err);
     });
     initHandel(0);
   }

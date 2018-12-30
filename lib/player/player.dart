@@ -39,7 +39,6 @@ class Player {
     final localAssetFile1 =
         await copyLocalAsset(localDir, bundleDir, assetName1);
     localFilePath = localAssetFile1.path;
-    print(localFilePath);
   }
 
   Future<File> copyLocalAsset(
@@ -99,6 +98,6 @@ class Player {
   }
 
   void onComplete() {
-    // print('完了');
+ 
   }
 }

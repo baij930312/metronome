@@ -5,7 +5,7 @@ part 'local_cache_model.g.dart';
 
 @JsonSerializable()
 class LocalCacheModel {
-  List<LocalStoreMetronomeModel> metronomesStore;
+  List<LocalStoreMetronomeModel> metronomesStore = [];
   bool isLoopPlay = true;
   int delaySecond = 0;
 
@@ -13,6 +13,5 @@ class LocalCacheModel {
   factory LocalCacheModel.fromJson(Map<String, dynamic> json) =>
       _$LocalCacheModelFromJson(json);
 
-  Map<String, dynamic> toJson() =>
-      _$LocalCacheModelToJson(this);
+  Map<String, dynamic> toJson() => _$LocalCacheModelToJson(this);
 }

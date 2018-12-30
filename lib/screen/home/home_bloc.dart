@@ -115,7 +115,6 @@ class HomeBloc extends BlocBase {
 
   Function _reOrderReducer(ReorderModel opt) {
     return (List<MetronomeModel> datas) {
-      print(opt.newIndex);
       int oldIndex = opt.oldIndex;
       int newIndex = opt.newIndex;
       MetronomeModel model = datas.removeAt(oldIndex);
