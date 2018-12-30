@@ -43,7 +43,9 @@ class _MetronmonTileState extends State<MetronmonTile> {
             if (!isExpand) {
               MetronomeModel playModel = MetronomeModel.from(model);
               playModel.isBegain = true;
-              homeBloc.playHandel(playModel);
+              homeBloc.stopHandel(0);
+              homeBloc.playDelayHandel(playModel);
+              
             }
           },
           child: _crossFade(

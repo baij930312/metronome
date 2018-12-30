@@ -33,7 +33,7 @@ class BottomToolBar extends StatelessWidget {
         HomeBloc homeBloc = BlocProvider.of<HomeBloc>(context);
         appBloc.addHandel(LocalStoreMetronomeModel(
             creatTimeStamp: Utils.currentTimeMillis(),
-            metronomes: homeBloc.metronomes,
+            metronomes: List.from(homeBloc.metronomes),
             name: name));
       }
     });
@@ -104,8 +104,32 @@ class BottomToolBar extends StatelessWidget {
           if (!(bloc.metronomes.isEmpty)) {
             var model = MetronomeModel.from(bloc.metronomes.first)
               ..isBegain = true;
-            bloc.playHandel(model);
+            bloc.stopHandel(0);
+            bloc.playDelayHandel(model);
           }
+        },
+      ),
+      IconButton(
+        icon: Icon(
+          Icons.stop,
+          semanticLabel: '停止播放',
+        ),
+        onPressed: () {
+          bloc.stopHandel(0);
+        },
+      ),
+      StreamBuilder(
+        stream: bloc.playDelayOriginStream,
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data == appBloc.cacheModel.delaySecond - 1) {
+              return Material();
+            }
+            return Material(
+              child: Text('${snapshot.data + 1}'),
+            );
+          }
+          return Material();
         },
       ),
     ]);
@@ -121,7 +145,7 @@ class BottomToolBar extends StatelessWidget {
 class LocalStoreDrawer extends StatelessWidget {
   final HomeBloc bloc;
   const LocalStoreDrawer(this.bloc);
-  _handleDelete(item,AppBloc appBloc) {
+  _handleDelete(item, AppBloc appBloc) {
     appBloc.deleteHandel(item);
   }
 

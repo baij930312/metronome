@@ -12,6 +12,27 @@ class HomeBloc extends BlocBase {
   PublishSubject<PlayState> _playStateController = PublishSubject<PlayState>();
   Function(PlayState) get playStateHandel => _playStateController.sink.add;
   Stream<PlayState> get playStateStream => _playStateController.stream;
+//播放延时
+  BehaviorSubject<MetronomeModel> _playDelayController =
+      BehaviorSubject<MetronomeModel>();
+  Function(MetronomeModel) get playDelayHandel => _playDelayController.sink.add;
+  Stream<MetronomeModel> get playDelayStream =>
+      playDelayOriginStream.where((int sceond) {
+        return sceond + 1 >= appBloc.cacheModel.delaySecond;
+      }).map((i) => _playDelayController.value);
+
+  Stream<int> get playDelayOriginStream =>
+      _playDelayController.stream.switchMap((MetronomeModel model) {
+        List<int> elements = [];
+        for (var i = 0; i < appBloc.cacheModel.delaySecond; i++) {
+          elements.add(i);
+        }
+        return Observable(Stream.fromIterable(elements))
+            .interval(Duration(seconds: 1))
+            .startWith(0)
+            .takeUntil(stopStream);
+      });
+
 //播放
   BehaviorSubject<MetronomeModel> _playController =
       BehaviorSubject<MetronomeModel>();
@@ -175,7 +196,9 @@ class HomeBloc extends BlocBase {
         currentBeatIndex: -1,
       ));
     });
-
+    playDelayStream.listen((model) {
+      playHandel(model);
+    });
     playStream.pipe(_playOutPutController);
 
     playOutPutStream.listen(
@@ -204,7 +227,8 @@ class HomeBloc extends BlocBase {
             playHandel(_metronomeResource.value[currentIndex + 1]);
           } else {
             if (appBloc.cacheModel.isLoopPlay) {
-              playHandel(_metronomeResource.value.first);
+              stopHandel(0);
+              playDelayHandel(_metronomeResource.value.first);
             } else {
               playStateHandel(PlayState(
                 index: -1,
@@ -250,5 +274,6 @@ class HomeBloc extends BlocBase {
     _reOrderMetronome.close();
     _replaceMetronomes.close();
     _stopController.close();
+    _playDelayController.close();
   }
 }
