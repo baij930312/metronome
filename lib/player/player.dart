@@ -68,9 +68,11 @@ class Player {
         onComplete();
       }
     }, onError: (msg) {});
-    await mute(true);
-    await playLocal();
-    Future.delayed(Duration(seconds: 5), () async => await mute(false));
+    // await mute(true);
+    // Future.delayed(Duration(seconds: 5), () async {
+    //   await playLocal();
+    //   await mute(false);
+    // });
   }
 
   Future play() async {
@@ -97,7 +99,5 @@ class Player {
     await audioPlayer.mute(muted);
   }
 
-  void onComplete() {
- 
-  }
+  void onComplete() {}
 }

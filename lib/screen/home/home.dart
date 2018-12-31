@@ -303,7 +303,7 @@ class HomeScreenState extends State<HomeScreen>
                       return Center(
                         child: Container(
                           child: Text(
-                            '点击右下方按钮添���节奏~',
+                            '点击右下方按钮添节奏~',
                             style: TextStyle(color: Colors.grey),
                           ),
                         ),
