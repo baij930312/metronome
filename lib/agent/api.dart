@@ -1,6 +1,5 @@
 import 'package:metronome/agent/agent.dart';
 import 'package:metronome/agent/api_model.dart';
-import 'package:metronome/bloc/app_bloc.dart';
 import 'package:meta/meta.dart';
 
 class Api {
@@ -18,7 +17,6 @@ class Api {
       },
     );
   }
-
 }
 
 final Api api = Api();

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:metronome/bloc/bloc_provider.dart';
-import 'package:metronome/common/utils.dart';
 import 'package:metronome/screen/home/model/metronome_model.dart';
 import 'package:metronome/screen/home/model/play_state.dart';
 
@@ -32,9 +31,7 @@ class _MetronmonTileState extends State<MetronmonTile> {
 
   @override
   Widget build(BuildContext context) {
-    AppBloc appBloc = BlocProvider.of<AppBloc>(context);
     HomeBloc homeBloc = BlocProvider.of<HomeBloc>(context);
-
     return ExpansionTile(
         title: InkWell(
           splashColor: Color.fromRGBO(0, 0, 0, 0),
@@ -45,7 +42,6 @@ class _MetronmonTileState extends State<MetronmonTile> {
               playModel.isBegain = true;
               homeBloc.stopHandel(0);
               homeBloc.playDelayHandel(playModel);
-              
             }
           },
           child: _crossFade(

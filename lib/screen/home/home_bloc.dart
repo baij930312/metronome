@@ -62,7 +62,6 @@ class HomeBloc extends BlocBase {
               .interval(
                   Duration(milliseconds: (60000 ~/ (model.beatsOfMinute))))
               .takeUntil(stopStream);
-          ;
         }
       });
 

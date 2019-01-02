@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:metronome/app/model/local_cache_model.dart';
 import 'package:metronome/bloc/bloc_provider.dart';
-import 'package:metronome/screen/home/model/metronome_model.dart';
 import 'package:metronome/widget/drag_delete_tile.dart';
 
 enum AlertState {
