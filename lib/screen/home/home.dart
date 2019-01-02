@@ -119,6 +119,14 @@ class HomeScreenState extends State<HomeScreen>
       builder: (BuildContext context, AsyncSnapshot<PlayState> snapshot) {
         if (snapshot.hasData) {
           PlayState stateModel = snapshot.data;
+          if (stateModel.index < 0) {
+            return Text(
+              '带一波好节奏~',
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+            );
+          }
           List<Widget> widgets = [];
           for (var i = 0; i < stateModel.totelBeatsOfBar; i++) {
             widgets.add(_buildDot(
@@ -211,7 +219,10 @@ class HomeScreenState extends State<HomeScreen>
                 SettingItem(
                   title: '起始延时',
                   child: PopupMenuButton<int>(
-                    onSelected: appBloc.delaySettingHandel,
+                    onSelected: (int value) {
+                      bloc.stopHandel(0);
+                      appBloc.delaySettingHandel(value);
+                    },
                     itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
                           PopupMenuItem<int>(
                               value: 0,

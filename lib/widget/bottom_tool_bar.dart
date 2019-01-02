@@ -95,20 +95,20 @@ class BottomToolBar extends StatelessWidget {
                   ]));
         },
       ),
-      IconButton(
-        icon: Icon(
-          Icons.refresh,
-          semanticLabel: '从头播放',
-        ),
-        onPressed: () {
-          if (!(bloc.metronomes.isEmpty)) {
-            var model = MetronomeModel.from(bloc.metronomes.first)
-              ..isBegain = true;
-            bloc.stopHandel(0);
-            bloc.playDelayHandel(model);
-          }
-        },
-      ),
+      // IconButton(
+      //   icon: Icon(
+      //     Icons.refresh,
+      //     semanticLabel: '从头播放',
+      //   ),
+      //   onPressed: () {
+      //     if (!(bloc.metronomes.isEmpty)) {
+      //       var model = MetronomeModel.from(bloc.metronomes.first)
+      //         ..isBegain = true;
+      //       bloc.stopHandel(0);
+      //       bloc.playDelayHandel(model);
+      //     }
+      //   },
+      // ),
       IconButton(
         icon: Icon(
           Icons.stop,
@@ -122,7 +122,8 @@ class BottomToolBar extends StatelessWidget {
         stream: bloc.playDelayOriginStream,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
-            if (snapshot.data == appBloc.cacheModel.delaySecond - 1) {
+            if ((appBloc.cacheModel.delaySecond == 0) ||
+                (snapshot.data == appBloc.cacheModel.delaySecond - 1)) {
               return Material();
             }
             return Material(
