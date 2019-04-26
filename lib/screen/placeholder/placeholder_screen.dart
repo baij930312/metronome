@@ -9,12 +9,7 @@ class PlaceholderScreen extends StatelessWidget {
     PlaceholderBloc placeholderBloc = BlocProvider.of<PlaceholderBloc>(context);
     placeholderBloc.appLaunch(context);
     return Scaffold(
-      body: Image.asset(
-        imagePaths.placeholder,
-        fit: BoxFit.fill,
-        height: Utils.getScreenHeight(context),
-        width: Utils.getScreenWidth(context),
-      ),
+      body:Container()
     );
   }
 }
